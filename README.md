@@ -155,7 +155,7 @@ You should now see that change at your remote server's ip address
 [How to setup email deliveries](https://public.3.basecamp.com/p/yAGcyJeSVHaW43M7aoHCxu6L)
 
 Update the following file in your production server:
-`/home/deploy/consul/shared/config/environments/production.rb`
+`/home/deploy/consul/shared/config/secrets.yml`
 
 You want to change this block of code and use your own SMTP credentials:
 ```
