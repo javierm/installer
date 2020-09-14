@@ -112,6 +112,24 @@
   command: "sudo certbot certonly --nginx --noninteractive --agree-tos --email {{ letsencrypt_email }} -d {{ errbit_domain }}"
   when: not lookup("env", "CI")
 
+- when: lookup("env", "CI")
+  become: true
+  become_user: root
+  block:
+    - name: Create certificates folder
+      file:
+        path: "/etc/letsencrypt/live/{{ errbit_domain }}"
+        state: directory
+
+    - name: Link test certificates to Errbit certificates folder
+      file:
+        state: "link"
+        src: "/etc/letsencrypt/live/{{ server_hostname }}/{{ item }}"
+        dest: "/etc/letsencrypt/live/{{ errbit_domain }}/{{ item }}"
+      with_items:
+        - fullchain.pem
+        - privkey.pem
+
 - name: Update nginx configuration
   become: true
   become_user: root
@@ -120,6 +138,9 @@
     dest: /etc/nginx/sites-enabled/errbit
     owner: "{{ deploy_user }}"
     group: wheel
+
+- name: Test nginx configuration
+  shell: "sudo nginx -t"
 
 - name: Restart Nginx
   become: true
