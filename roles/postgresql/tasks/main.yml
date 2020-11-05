@@ -24,6 +24,12 @@
 - become: true
   become_user: postgres
   block:
+    - name: Get PostgreSQL version
+      shell: "dpkg -l | grep postgres"
+      register: psql_version
+    - name: Print PostgreSQL version
+      debug:
+        msg: "{{ psql_version.stdout }}"
     - name: Create PostgreSQL database
       postgresql_db:
         name: "{{ database_name }}"
