@@ -1,4 +1,14 @@
 ---
+- name: Remove pre-installed PostgreSQL versions
+  become: true
+  package:
+    name:
+      - postgresql*9.0*
+      - postgresql*9.1*
+      - postgresql*9.2*
+      - postgresql*9.3*
+    state: absent
+
 - name: Install PostgreSQL
   become: true
   apt:
