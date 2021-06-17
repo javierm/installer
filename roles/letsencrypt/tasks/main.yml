@@ -1,5 +1,5 @@
 ---
-- when: domain is defined and not lookup("env", "CI")
+- when: domain is defined
   block:
     - name: Install software-properties-common
       apt:
@@ -9,6 +9,8 @@
       apt_repository:
         repo: "ppa:certbot/certbot"
 
+- when: domain is defined and not lookup("env", "CI")
+  block:
     - name: Update system
       apt:
         update_cache: yes
