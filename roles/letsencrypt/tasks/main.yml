@@ -9,8 +9,6 @@
       apt_repository:
         repo: "ppa:certbot/certbot"
 
-- when: domain is defined and not lookup("env", "CI")
-  block:
     - name: Update system
       apt:
         update_cache: yes
@@ -19,6 +17,8 @@
       apt:
         name: "python3-certbot-nginx"
 
+- when: domain is defined and not lookup("env", "CI")
+  block:
     - name: Grab Certbot certificate
       command: "sudo certbot --nginx --noninteractive --agree-tos --email {{ letsencrypt_email }} -d {{ domain }}"
 
