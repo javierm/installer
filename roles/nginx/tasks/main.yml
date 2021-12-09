@@ -1,13 +1,13 @@
 ---
 - name: Install Nginx
-  apt:
+  yum:
     name: nginx
     state: latest
 
 - name: Add default virtual host
   template:
     src: "{{ playbook_dir }}/roles/nginx/templates/consul_vhost.j2"
-    dest: /etc/nginx/sites-enabled/default
+    dest: /etc/nginx/conf.d/consul.conf
     owner: "{{ deploy_user }}"
     group: "{{ deploy_group }}"
 
