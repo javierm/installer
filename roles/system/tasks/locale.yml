@@ -1,9 +1,21 @@
-- name: set locale to {{locale}}
-  command: /usr/sbin/update-locale LANG={{locale}} LC_ALL={{locale}}
+- name: Check if locale '{{ locale }}' is set up
+  shell: localectl status | grep -i {{ locale }}
+  register: found_locale
+  changed_when: no
+  failed_when: no
 
-- name: set /etc/localtime to {{ timezone  }}
-  command: /bin/cp /usr/share/zoneinfo/{{ timezone  }}/etc/localtime
+- name: Set up locale to '{{ locale }}' and language to '{{ locale }}'
+  become: true
+  shell: localectl set-locale LANG={{ locale }} LANGUAGE={{ locale }}
+  when: found_locale.rc != 0
 
-- name: set /etc/timezone to {{ timezone  }}
-  template: src=etc/timezone dest=/etc/timezone
-  notify: update tzdata
+- name: Check if timezone '{{ timezone }}' is set up
+  shell: timedatectl status | grep -i {{ timezone }}
+  register: found_timezone
+  changed_when: no
+  failed_when: no
+
+- name: Configure timezone to '{{ timezone }}'
+  become: true
+  shell: ln -sf /usr/share/zoneinfo/{{ timezone }} /etc/localtime
+  when: found_timezone.rc != 0
