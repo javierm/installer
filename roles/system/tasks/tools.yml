@@ -1,26 +1,24 @@
-- name: Install Tools
+---
+- name: Add Nodesource repositories for Node.js 10.x (CentOS 7+).
   become: true
-  apt:
-    state: latest
-    update_cache: true
+  yum:
+    name: http://rpm.nodesource.com/pub_10.x/el/7/x86_64/nodesource-release-el7-1.noarch.rpm
+    state: present
+
+- name: Install tools
+  become: true
+  yum:
     name:
-      - build-essential
+      - audit
+      - policycoreutils-devel
+      - python3-devel
       - tmux
       - vim
       - htop
-      - git-core
+      - git
       - wget
-      - zlib1g-dev
-      - libssl-dev
-      - libreadline-dev
-      - libyaml-dev
-      - libxml2-dev
-      - libxslt1-dev
-      - libffi-dev
+      - libxml2
       - curl
-      - libcurl4-openssl-dev
       - nodejs
-      - libpq-dev
-      - imagemagick
-      - ruby-dev
-      - shared-mime-info
+      - ImageMagick
+    state: latest

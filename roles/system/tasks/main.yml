@@ -6,43 +6,13 @@
   debug:
     msg: "Setting up {{ env }} environment"
 
-- name: Update and upgrade apt packages (this may take a few minutes)
-  become: true
-  become_method: sudo
-  apt:
-    upgrade: yes
-    update_cache: yes
-    cache_valid_time: 86400
-  # since it's not production, ok if the packages are a bit out-of-date when running tests in exchange for faster builds
-  when: not lookup('env', 'CI')
-
-# https://askubuntu.com/a/211531/501568
-- name: Install HTTPS package for Aptitude
-  become: true
-  apt:
-    name: apt-transport-https
-
-- name: Add Node key
+- name: Update and upgrade yum packages (this may take a few minutes)
   become: yes
-  apt_key:
-    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-    state: present
-
-- name: Get distribution codename
-  shell: lsb_release -c --short
-  register: distro_codename
-
-- name: Add Node repository
-  become: true
-  apt_repository:
-    repo: "deb https://deb.nodesource.com/node_10.x {{ distro_codename.stdout }} main"
-    state: present
-
-- name: Remove apache server
-  become: true
-  apt:
-    name: apache2
-    state: absent
+  yum:
+    name: "*"
+    state: latest
+    update_only: yes
 
 #- include: hostname.yml
 - include: tools.yml
+- include: locale.yml
