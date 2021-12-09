@@ -119,7 +119,7 @@
   become_user: root
   template:
     src: "{{ playbook_dir }}/roles/errbit/templates/errbit.example.com"
-    dest: /etc/nginx/sites-enabled/errbit
+    dest: /etc/nginx/conf.d/errbit.conf
     owner: "{{ deploy_user }}"
     group: "{{ deploy_group }}"
 
