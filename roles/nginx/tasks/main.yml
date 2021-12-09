@@ -37,3 +37,47 @@
   become: true
   shell: firewall-cmd --zone=public --query-service=http
   register: http_traffic_enabled
+
+- name: Allow httpd to read from user content
+  become: true
+  command: setsebool -P httpd_read_user_content 1
+
+- name: Add Nginx pp
+  template:
+    src: "{{ playbook_dir }}/roles/nginx/templates/nginx.pp"
+    dest: "/home/{{ deploy_user }}/nginx.pp"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_group }}"
+
+- name: Add SELinux rules to allow nginx to access puma
+  copy:
+    dest: "/home/{{ deploy_user }}/nginx.te"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_group }}"
+    content: |
+      module nginx 1.0;
+
+      require {
+        type unconfined_t;
+        type httpd_t;
+        type user_home_t;
+        class sock_file write;
+        class unix_stream_socket connectto;
+        class lnk_file read;
+        class file read;
+      }
+
+      #============= httpd_t ==============
+
+      allow httpd_t unconfined_t:unix_stream_socket connectto;
+
+      #!!!! This avc is allowed in the current policy
+      allow httpd_t user_home_t:file read;
+
+      #!!!! This avc is allowed in the current policy
+      allow httpd_t user_home_t:lnk_file read;
+      allow httpd_t user_home_t:sock_file write;
+
+- name: Apply SELinux nginx rules
+  become: true
+  command: semodule -i nginx.pp
