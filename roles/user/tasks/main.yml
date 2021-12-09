@@ -18,6 +18,12 @@
     state: present
     shell: /bin/bash
 
+- name: Change permission on {{ home_dir }}
+  file:
+    path: "{{ home_dir }}"
+    state: directory
+    mode: 0755
+
 - name: Install SSH key
   authorized_key:
     user: "{{ deploy_user }}"
