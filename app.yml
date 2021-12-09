@@ -44,6 +44,14 @@
       become_user: "{{ deploy_user }}"
       when: errbit|bool
 
+- name: Apply SELinux policies
+  hosts: all
+  become: true
+  vars:
+    ansible_user: "{{ deploy_user }}"
+  roles:
+    - selinux
+
 - name: Check system
   hosts: all
   become: true

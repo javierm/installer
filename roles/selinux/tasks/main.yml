@@ -1,0 +1,55 @@
+- name: Read SELinux policies
+  become: true
+  command: audit2allow -a
+  register: selinux_rules
+
+- when: selinux_rules.stdout == ""
+  block:
+
+  - name: Allow httpd context to access user content
+    become: true
+    command: setsebool -P httpd_read_user_content 1
+
+  - name: Allow httpd context to home_dir files
+    become: true
+    command: setsebool -P httpd_enable_homedirs 1
+
+  - name: Generate SELinux audit log by throwing an expected error
+    uri:
+      url: http://127.0.0.1
+      follow_redirects: no
+      status_code: 502
+
+  - name: Generate SELinux nginx policies from audit log
+    become: true
+    shell: "cd {{home_dir}} && grep nginx /var/log/audit/audit.log | audit2allow -M nginx"
+
+  - name: Apply SELinux nginx specific policies
+    become: true
+    shell: "cd {{home_dir}} && semodule -i nginx.pp"
+
+  - name: Generate SELinux audit log by throwing an expected error
+    uri:
+      url: http://127.0.0.1
+      follow_redirects: no
+      status_code: 502
+
+  - name: Generate SELinux more nginx policies from audit log
+    become: true
+    shell: "cd {{home_dir}} && grep nginx /var/log/audit/audit.log | audit2allow -M nginx"
+
+  - name: Apply SELinux more nginx specific policies
+    become: true
+    shell: "cd {{home_dir}} && semodule -i nginx.pp"
+
+  - name: Relabel puma socket
+    become: true
+    shell: "cd {{ consul_dir }}/shared/tmp/sockets && chcon -v --type=httpd_sys_content_t puma.sock"
+
+  - name: Persist across reboots
+    become: true
+    shell: "cd {{ consul_dir }}/shared/tmp/sockets && semanage fcontext -a -t httpd_sys_content_t puma.sock"
+
+  - name: Restore connection
+    become: true
+    shell: "cd {{ consul_dir }}/shared/tmp/sockets && restorecon -v puma.sock"
