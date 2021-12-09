@@ -16,3 +16,24 @@
     name: nginx
     state: restarted
     enabled: true
+
+- name: Is http traffic enabled?
+  become: true
+  shell: firewall-cmd --zone=public --query-service=http
+  register: http_traffic_enabled
+  ignore_errors: true
+
+- name: Add firewall rule to allow http traffic
+  become: true
+  command: firewall-cmd --zone=public --add-service=http --permanent
+  when: http_traffic_enabled.stdout == 'no'
+
+- name: Reload firewall
+  become: true
+  command: firewall-cmd --reload
+  when: http_traffic_enabled.stdout == 'no'
+
+- name: Check if http traffic is enabled
+  become: true
+  shell: firewall-cmd --zone=public --query-service=http
+  register: http_traffic_enabled
