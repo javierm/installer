@@ -29,6 +29,7 @@ ssh_public_key_path: "~/.ssh/id_rsa.pub"
 ansible_ssh_private_key_file: "~/.ssh/id_rsa"
 
 #Postgresql
+postgresql_version: 13
 database_name: "{{app_name}}_{{ env }}"
 database_user: "{{ deploy_user }}"
 database_password: "{{ deploy_user }}"

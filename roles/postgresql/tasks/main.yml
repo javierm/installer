@@ -5,15 +5,21 @@
     name: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
     state: present
 
-- name: Install PostgreSQL 10
+- name: Install CentOS SCLo RH repository
+  become: true
+  yum:
+    name: centos-release-scl-rh
+    state: present
+
+- name: Install PostgreSQL {{ postgresql_version }}
   become: true
   yum:
     name:
-      - postgresql10-devel
-      - postgresql10-server
-      - postgresql10-contrib
-      - postgresql10-libs
-      - postgresql10
+      - postgresql{{ postgresql_version }}-devel
+      - postgresql{{ postgresql_version }}-server
+      - postgresql{{ postgresql_version }}-contrib
+      - postgresql{{ postgresql_version }}-libs
+      - postgresql{{ postgresql_version }}
       - python3-psycopg2
       - libpq5
       - libpq5-devel
@@ -22,21 +28,21 @@
 - name: Find out if PostgreSQL is initialized
   become: true
   ansible.builtin.stat:
-    path: /var/lib/pgsql/10/data/pg_hba.conf
+    path: /var/lib/pgsql/{{ postgresql_version }}/data/pg_hba.conf
   register: postgres_data
 
 - name: Initialize database
   become: true
-  command: /usr/pgsql-10/bin/postgresql-10-setup initdb
+  command: /usr/pgsql-{{ postgresql_version }}/bin/postgresql-{{ postgresql_version }}-setup initdb
   when: not postgres_data.stat.exists
 
 - name: Start Postgres
   become: true
-  command: systemctl start postgresql-10.service
+  command: systemctl start postgresql-{{ postgresql_version }}.service
 
 - name: Enable Postgres
   become: true
-  command: systemctl enable postgresql-10.service
+  command: systemctl enable postgresql-{{ postgresql_version }}.service
 
 - become: true
   become_user: postgres
@@ -65,7 +71,7 @@
 - name: Allow local login
   become: true
   lineinfile:
-    path: /var/lib/pgsql/10/data/pg_hba.conf
+    path: /var/lib/pgsql/{{ postgresql_version }}/data/pg_hba.conf
     line: 'host    all             all             127.0.0.1/32            md5'
     regexp: '^host( )*all( )*all( )*127\.0\.0\.1\/32( )*ident*'
     state: present
@@ -73,11 +79,11 @@
 - name: Allow local login
   become: true
   lineinfile:
-    path: /var/lib/pgsql/10/data/pg_hba.conf
+    path: /var/lib/pgsql/{{ postgresql_version }}/data/pg_hba.conf
     line: 'host    all             all             ::1/128            md5'
     regexp: '^host( )*all( )*all( )*::1/128 ( )*ident*'
     state: present
 
 - name: Re-start the service
   become: true
-  command: systemctl restart postgresql-10.service
+  command: systemctl restart postgresql-{{ postgresql_version }}.service
