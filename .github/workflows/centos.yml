@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Update system packages
-        run: yum check-update
+        run: yum check-update || true
       - name: Install needed packages
         run: yum install -y lsb-release sudo python3-pip openssh-server
       - name: Update pip
