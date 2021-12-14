@@ -1,12 +1,10 @@
-name: tests
+name: ubuntu
 on:
   push:
-    branches:
-      - master
   pull_request:
 
 jobs:
-  tests:
+  ubuntu:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -34,4 +32,15 @@ jobs:
       - name: Generate dummy SSH key
         run: ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
       - name: Run CONSUL installer
-        run: ansible-playbook consul.yml -i hosts --extra-vars "env=${{ matrix.rails_env }} domain=localhost errbit=True"
+        run: ansible-playbook consul.yml -i hosts --extra-vars "env=${{ matrix.rails_env }} domain=localhost"
+      - name: Check permissions
+        run: ls -l /home/deploy/consul/shared/tmp/sockets/ > /home/deploy/consul/shared/log/permit.log
+      - name: Check permission details
+        run: getfacl /home/deploy/consul/shared/tmp/sockets/* > details.log
+      - name: Check Selinux
+        run: dpkg -l | grep selinux > /home/deploy/consul/shared/log/selinux.log
+      - name: Upload logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: logs
+          path: /home/deploy/consul/shared/log

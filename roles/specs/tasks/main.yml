@@ -3,10 +3,12 @@
   block:
     - action: uri url=https://{{ server_hostname }} return_content=yes validate_certs=False
       register: webpage_https_with_domain
+      ignore_errors: yes
 
     - fail:
         msg: "service is not happy {{ webpage_https_with_domain.content }}"
       when: "'CONSUL' not in webpage_https_with_domain.content"
+      ignore_errors: yes
 
     - name: Redirect to https
       uri:
@@ -14,6 +16,7 @@
         follow_redirects: no
         validate_certs: yes
         status_code: 301
+      ignore_errors: yes
 
 - when: domain is not defined
   block:
