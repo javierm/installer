@@ -23,6 +23,9 @@ jobs:
       - name: Update pip
         run: pip3 install --upgrade pip
       - name: Install Ansible
+        env:
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
         run: pip3 install ansible
       - name: Create hosts file
         run: echo "localhost ansible_connection=local ansible_user=root" > hosts
