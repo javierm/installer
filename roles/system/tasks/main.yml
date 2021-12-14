@@ -15,4 +15,3 @@
 
 #- include: hostname.yml
 - include: tools.yml
-- include: locale.yml
