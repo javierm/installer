@@ -38,11 +38,10 @@
 
 - name: Start Postgres
   become: true
-  command: systemctl start postgresql-{{ postgresql_version }}.service
-
-- name: Enable Postgres
-  become: true
-  command: systemctl enable postgresql-{{ postgresql_version }}.service
+  service:
+    name: postgresql-{{ postgresql_version }}
+    state: started
+    enabled: true
 
 - become: true
   become_user: postgres
@@ -86,4 +85,6 @@
 
 - name: Re-start the service
   become: true
-  command: systemctl restart postgresql-{{ postgresql_version }}.service
+  service:
+    name: postgresql-{{ postgresql_version }}
+    state: restarted
