@@ -17,6 +17,10 @@
     state: restarted
     enabled: true
 
+- name: Install firewalld
+  yum:
+    name: firewalld
+
 - name: Is http traffic enabled?
   become: true
   shell: firewall-cmd --zone=public --query-service=http
