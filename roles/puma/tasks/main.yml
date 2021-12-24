@@ -27,3 +27,9 @@
   args:
     chdir: "{{ release_dir }}"
     executable: /bin/bash
+
+- name: Change puma permissions
+  shell: "chmod o+w tmp/sockets/*"
+  args:
+    chdir: "{{ release_dir }}"
+    executable: /bin/bash
