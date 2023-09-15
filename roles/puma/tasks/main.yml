@@ -7,26 +7,22 @@
     - "pids"
     - "sockets"
 
-- name: Check that puma is running
-  stat:
-    path: "{{ shared_dir }}/tmp/pids/puma.pid"
-  register: puma_process
+- name: Create systemd folder
+  file:
+    path: "{{ home_dir }}/.config/systemd/user"
+    state: directory
 
-- name: Get running puma process
-  shell: "cat {{ shared_dir }}/tmp/pids/puma.pid"
-  register: running_process
-  when: puma_process.stat.exists == True
-
-- name: Kill running process
-  shell: "kill -QUIT {{ item }}"
-  with_items: "{{ running_process.stdout_lines }}"
-  when: puma_process.stat.exists == True
+- name: Copy Puma service file to the systemd folder
+  template:
+    src: "{{ playbook_dir }}/roles/puma/templates/puma.service"
+    dest: "{{ home_dir }}/.config/systemd/user/puma.service"
 
 - name: Start puma
-  shell: "source {{ home_dir }}/.rvm/scripts/rvm && bundle exec puma -C {{ release_dir }}/config/puma/{{ env }}.rb -e {{ env }} -d"
-  args:
-    chdir: "{{ release_dir }}"
-    executable: /bin/bash
+  systemd:
+    name: "{{ puma_service_unit_name }}"
+    enabled: true
+    state: started
+    scope: user
 
 - name: Make sure Nginx has write access to the puma socket
   shell: "chmod o+w tmp/sockets/*"
