@@ -23,6 +23,8 @@
     enabled: true
     state: started
     scope: user
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ myuid }}"
 
 - name: Make sure Nginx has write access to the puma socket
   shell: "chmod o+w tmp/sockets/*"
