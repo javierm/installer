@@ -1,0 +1,71 @@
+---
+- when: distro_codename.stdout == "focal" or distro_codename.stdout == "jammy" or not lookup("env", "CI")
+  block:
+    - name: Get Service Status
+      systemd:
+        name: "{{ puma_service_unit_name }}"
+        scope: user
+      environment:
+        XDG_RUNTIME_DIR: "/run/user/{{ current_uid.stdout }}"
+      register: puma_service_status
+
+    - debug:
+        var: puma_service_status.status
+
+    - name: Get Puma access log
+      shell: "cat {{ shared_dir}}/log/puma_access.log"
+      args:
+        chdir: "{{ release_dir }}"
+        executable: /bin/bash
+      register: puma_access_log
+
+    - debug:
+        var: puma_access_log.stdout
+
+    - name: Get Puma error log
+      shell: "cat {{ shared_dir}}/log/puma_error.log"
+      args:
+        chdir: "{{ release_dir }}"
+        executable: /bin/bash
+      register: puma_error_log
+
+    - debug:
+        var: puma_error_log.stdout
+
+    - name: Get production log
+      shell: "cat {{ shared_dir}}/log/{{ env }}.log"
+      args:
+        chdir: "{{ release_dir }}"
+        executable: /bin/bash
+      register: rails_log
+
+    - debug:
+        var: rails_log.stdout
+
+    - name: Get status output
+      shell: "systemctl status {{ puma_service_unit_name }} --user"
+      args:
+        chdir: "{{ release_dir }}"
+        executable: /bin/bash
+      environment:
+        XDG_RUNTIME_DIR: "/run/user/{{ current_uid.stdout }}"
+      register: puma_status
+
+    - debug:
+        var: puma_status.stdout
+
+    - name: Get list of sockets
+      shell: "ls -l {{ release_dir }}/tmp/sockets/"
+      args:
+        chdir: "{{ release_dir }}"
+        executable: /bin/bash
+      register: sockets_list
+
+    - debug:
+        var: sockets_list.stdout
+
+    - name: Make sure Nginx has write access to the puma socket
+      shell: "chmod o+w tmp/sockets/*"
+      args:
+        chdir: "{{ release_dir }}"
+        executable: /bin/bash

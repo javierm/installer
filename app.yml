@@ -45,6 +45,15 @@
       become_user: "{{ deploy_user }}"
       when: errbit|bool
 
+- name: Debug
+  hosts: all
+  become: true
+  become_user: "{{ deploy_user }}"
+  vars:
+    ansible_user: "{{ deploy_user }}"
+  roles:
+    - debug
+
 - name: Check system
   hosts: all
   become: true
