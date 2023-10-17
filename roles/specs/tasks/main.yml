@@ -3,6 +3,35 @@
   block:
     - when: domain is defined
       block:
+        - name: Check error
+          uri:
+            url: https://{{ server_hostname }}
+            follow_redirects: no
+            status_code: 502
+            validate_certs: no
+
+        - name: Get nginx access log
+          shell: "cat /var/log/nginx/access.log"
+          become: true
+          args:
+            chdir: "{{ release_dir }}"
+            executable: /bin/bash
+          register: nginx_access_log
+
+        - debug:
+            var: nginx_access_log.stdout
+
+        - name: Get nginx error log
+          shell: "cat /var/log/nginx/error.log"
+          become: true
+          args:
+            chdir: "{{ release_dir }}"
+            executable: /bin/bash
+          register: nginx_error_log
+
+        - debug:
+            var: nginx_error_log.stdout
+
         - action: uri url=https://{{ server_hostname }} return_content=yes validate_certs=False
           register: webpage_https_with_domain
 
