@@ -22,7 +22,7 @@
         state: directory
 
     - name: Create first release
-      shell: "git archive npm_packages | /usr/bin/env tar -x -f - -C {{ first_release_dir }}"
+      shell: "git archive dependabot/bundler/puma-5.6.7 | /usr/bin/env tar -x -f - -C {{ first_release_dir }}"
       args:
         chdir: "{{ consul_dir }}/repo"
 
