@@ -24,7 +24,7 @@
   delay: 10
 
 - name: Install Node packages
-  shell: "{{ fnm_command }} && {{ rvm_command }} && npm install --production"
+  shell: "{{ fnm_command }} && {{ rvm_command }} && fnm exec npm install --production"
   args:
     chdir: "{{ release_dir }}"
     executable: /bin/bash
