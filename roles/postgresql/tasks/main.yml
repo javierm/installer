@@ -30,14 +30,6 @@
         name: "{{ database_name }}"
         owner: "{{ database_user }}"
 
-    - name: Grant {{ database_user }} user access to database {{ database_name }}
-      postgresql_privs:
-        type: database
-        database: "{{ database_name }}"
-        roles: "{{ database_user }}"
-        grant_option: no
-        privs: ALL
-
     - name: Create the shared extensions schema
       postgresql_schema:
         name: shared_extensions
