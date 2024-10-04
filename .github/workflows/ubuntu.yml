@@ -1,8 +1,6 @@
 name: ubuntu
 on:
   push:
-    branches:
-      - master
   pull_request:
 
 jobs:
@@ -12,7 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         platforms: [
-          { os: "ubuntu-20.04", errbit: "True" },
           { os: "ubuntu-22.04", errbit: "False"},
           { os: "ubuntu-24.04", errbit: "False"}
         ]
@@ -22,7 +19,7 @@ jobs:
       - name: Update system packages
         run: sudo apt-get update -y
       - name: Install needed packages
-        run: sudo apt-get install -y openssh-server ansible
+        run: sudo apt-get install -y openssh-server ansible gpg
       - name: Create hosts file
         run: echo "localhost ansible_connection=local ansible_user=root" > hosts
       - name: Generate dummy SSH key
